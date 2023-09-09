@@ -9,7 +9,7 @@
       <!-- <script>mermaid.initialize({startOnLoad:true});</script>   -->
       <script>
          mermaid.mermaidAPI.initialize({
-             // startOnLoad:false,
+            //  startOnLoad:false,
              flowchart: {
 
                curve: 'basis' 
@@ -18,7 +18,7 @@
          });
          window.login = {};
          $(function(){
-          alert('hi');
+          //alert('hi');
             //  // Example of using the API
              var element = document.querySelector("#graphDiv");
      
@@ -27,22 +27,22 @@
             //  };
      
             //  var graphDefinition = 'graph TB\na-->b';
-             var graphDefinition = $('#divtext5').text();
-            //  var graph = mermaid.mermaidAPI.render('graphDiv',graphDefinition);
-            mermaid.render('id', graphDefinition).then(({ svg, bindFunctions }) => {
-              element.innerHTML = svg;
-              // bindFunctions?.(element);
-            });
+            //  var graphDefinition = $('#divtext5').text();
+            // //  var graph = mermaid.mermaidAPI.render('graphDiv',graphDefinition);
+            // mermaid.render('id', graphDefinition).then(({ svg, bindFunctions }) => {
+            //   element.innerHTML = svg;
+            //   // bindFunctions?.(element);
+            // });
             $("#create").click(function()
           {
-            alert('click');
+            // alert('click');
           var element = $("#graphDiv");
           var args = {};
           args.cmd = "diagram_app.www.erd.erd.get_erd";
           args.doc_type = $("#doc_type").val();
           args.doc_name = $("#doc_name").val();
           call_api(args).then((message) => {
-            alert(message.message);
+            // alert(message.message);
                   var graphDefinition = message.message;
                   mermaid.render('id', graphDefinition).then(({ svg, bindFunctions }) => {
                   element.html(svg);
@@ -61,7 +61,7 @@
           args.cmd = "diagram_app.www.erd.erd.get_doc_name";
           args.doc_type = $("#doc_type").val();
           call_api(args).then((message) => {
-            alert(message.message);
+            // alert(message.message);
                   var data = message.message;
                   $('#doc_name').html(data);
                   
@@ -89,6 +89,7 @@
          
          
      </script>
+     
    </head>  
    <body>
    <div class="row">
@@ -100,21 +101,18 @@
        </div>
          <div class="col-md-6">
              <select id="doc_name" class="form-select" aria-label="Default select example">
-                 <option value="DD-00001">DD-00001</option>
-                 <option value="DD-00002">DD-00002</option>
-                 <option value="WF_GroupUM">WF_GroupUM</option>
-                 <option value="TbTravel_Status">TbTravel_Status</option>
+                 
 
             </select>
          </div>
 
    </div>
-    <input type="button" id="create" value="Click"/>
+    <input type="button" id="create" value="Show"/>
 
        <div  id="graphDiv" style="direction: ltr;">
         
         </div>
-
+        <script>frappe.csrf_token = "{{frappe.session.csrf_token}}";</script>
    </body>  
 </html>  
 

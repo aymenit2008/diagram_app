@@ -36,7 +36,7 @@ def get_workflow(doc_name):
         replace(t_doctype.state, ' ', '_').as_('state'), replace(t_doctype.next_state, ' ', '_').as_('next_state'),
         t_doctype.action.as_('action'), t_doctype.allowed.as_('allowed'))
              .where(t_doctype.parent == doc_name).orderby(t_doctype.idx, order=Order.asc))
-    frappe.msgprint(str(query))
+    # frappe.msgprint(str(query))
     list_all = query.run(as_dict=True)
     a_str = "sequenceDiagram" + "\n"
     for l in list_all:
@@ -59,7 +59,7 @@ def get_diagram(doc_name):
              .where(t_doctype.fieldtype.isin(['Link', 'Table'])
                     & t_doctype.parent.isin(doctype_list) & t_doctype.options.isin(doctype_list) & (
                             t_doctype.parent != t_doctype.options)))
-    frappe.msgprint(str(query))
+    # frappe.msgprint(str(query))
     list_all = query.run(as_dict=True)
     a_str = "erDiagram" + "\n"
     for l in list_all:
@@ -81,7 +81,7 @@ def get_diagram(doc_name):
 
 def get_doctype_fields(doctype):
     fields = frappe.get_meta(doctype.doc_type).fields
-    frappe.msgprint(str(fields))
+    # frappe.msgprint(str(fields))
     # replace space in doctype name with '-'
     doctype_new = doctype.doc_type.replace(' ', '-')
     table_str = doctype_new + "{\n"
