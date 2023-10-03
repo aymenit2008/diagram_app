@@ -41,6 +41,7 @@
           args.cmd = "diagram_app.www.erd.erd.get_erd";
           args.doc_type = $("#doc_type").val();
           args.doc_name = $("#doc_name").val();
+          args.status = $("#status").val();
           call_api(args).then((message) => {
             // alert(message.message);
                   var graphDefinition = message.message;
@@ -72,6 +73,22 @@
 
           });
 
+          $('#doc_name').on('change', function () {
+            var args = {};
+          args.cmd = "diagram_app.www.erd.erd.get_status";
+          args.doc_name = $("#doc_name").val();
+          call_api(args).then((message) => {
+            // alert(message.message);
+                  var data = message.message;
+                  $('#status').html(data);
+
+          }).catch(() => {
+            alert("Error");
+          });
+
+
+          });
+
          
            function call_api (args, callback) {
 
@@ -93,15 +110,21 @@
    </head>  
    <body>
    <div class="row">
-       <div class="col-md-6">
+       <div class="col-md-4">
        <select id="doc_type" class="form-select" aria-label="Default select example">
           <option value="Diagram Doc DA">Diagram Doc</option>
           <option value="Workflow">Workflow</option>
         </select>
        </div>
-         <div class="col-md-6">
+         <div class="col-md-4">
              <select id="doc_name" class="form-select" aria-label="Default select example">
                  
+
+            </select>
+         </div>
+        <div class="col-md-4">
+             <select id="status" class="form-select" aria-label="Default select example">
+
 
             </select>
          </div>

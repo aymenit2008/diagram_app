@@ -8,10 +8,10 @@ from pypika import CustomFunction
 
 
 @frappe.whitelist(allow_guest=True)
-def get_erd(doc_type, doc_name):
+def get_erd(doc_type, doc_name, status):
     frappe.msgprint("doc_type: " + doc_type + " doc_name: " + doc_name)
     if doc_type == "Workflow":
-        return get_workflow(doc_name)
+        return get_workflow(doc_name, status)
     elif doc_type == "Diagram Doc DA":
         return get_diagram(doc_name)
 
@@ -25,10 +25,37 @@ def get_doc_name(doc_type):
     html_str += ""
     return html_str
 
+@frappe.whitelist(allow_guest=True)
+def get_status(doc_name):
+    workflow_status = frappe.qb.DocType("Workflow Document State")
+    subq = (
+        frappe.qb.from_(workflow_status)
+        .select(workflow_status.state)
+        .where(workflow_status.parent == doc_name)
+    )
+    query = ( frappe.qb.from_("Workflow State").select("name").where(frappe.qb.Field("name").isin(subq)))
+    list_all = query.run(as_dict=True)
+    html_str = "<option value=''>all</option>"
+    for l in list_all:
+        html_str += "<option value='" + l.name + "'>" + l.name + "</option>"
+    html_str += ""
+    return html_str
+
+def get_workflow_status(doc_name):
+
+    workflow_status = frappe.qb.DocType("Workflow Document State")
+    replace = CustomFunction('REPLACE', ['column_name', 'text to find', 'text to replace with'])
+    subq = (
+        frappe.qb.from_(workflow_status)
+        .select(workflow_status.idx,replace(workflow_status.state, ' ', '_').as_('state'))
+        .where(workflow_status.parent == doc_name).orderby(workflow_status.idx, order=Order.asc)
+    ).run(as_dict=True)
+    return subq
 
 
 
-def get_workflow(doc_name):
+def get_workflow(doc_name,status):
+    status_list = get_workflow_status(doc_name)
     t_doctype = frappe.qb.DocType("Workflow Transition")
     replace = CustomFunction('REPLACE', ['column_name', 'text to find', 'text to replace with'])
     query = (frappe.qb.from_(t_doctype)
@@ -36,11 +63,28 @@ def get_workflow(doc_name):
         replace(t_doctype.state, ' ', '_').as_('state'), replace(t_doctype.next_state, ' ', '_').as_('next_state'),
         t_doctype.action.as_('action'), t_doctype.allowed.as_('allowed'))
              .where(t_doctype.parent == doc_name).orderby(t_doctype.idx, order=Order.asc))
+    if status != "":
+        query = query.where(t_doctype.state == status)
+
     # frappe.msgprint(str(query))
     list_all = query.run(as_dict=True)
+
+    # get unique state and next_state from list_all
+    state_list = list(set([dt.state for dt in list_all])) + list(set([dt.next_state for dt in list_all]))
+    # frappe.throw(str(state_list))
+
+
+
+
     a_str = "sequenceDiagram" + "\n"
+    for l in status_list:
+        # check if state is in list_all
+        if l.state in state_list:
+            a_str += "participant " + l.state + "\n"
+
     for l in list_all:
         a_str += l.state + " ->> " + l.next_state + ": " + l.action + " ( " +l.allowed + " )\n"
+
     return a_str
 
 
